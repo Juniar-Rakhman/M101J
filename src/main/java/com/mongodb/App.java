@@ -1,46 +1,18 @@
 package com.mongodb;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import spark.Request;
-import spark.Response;
-import spark.Route;
-import spark.Spark;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Hello world!
- */
 public class App {
     public static void main(String[] args) {
+        MongoClientOptions options = MongoClientOptions.builder().connectionsPerHost(100).build();
+        MongoClient client = new MongoClient(new ServerAddress("localhost", 27017), options);
 
-        final Configuration configuration = new Configuration();
-        configuration.setClassForTemplateLoading(App.class, "/");
+        MongoDatabase db = client.getDatabase("test").withReadPreference(ReadPreference.secondary());
 
-        Spark.get(new Route("/") {
-            @Override
-            public Object handle(Request request, Response response) {
-                StringWriter writer = new StringWriter();
-                try {
-                    Template helloTemplate = configuration.getTemplate("hello.ftl");
+        MongoCollection coll = db.getCollection("test");
 
-                    Map<String, Object> helloMap = new HashMap<String, Object>();
-                    helloMap.put("name", "Freemarker");
 
-                    helloTemplate.process(helloMap, writer);
 
-                    System.out.println(writer);
-
-                } catch (Exception e) {
-                    halt(500);
-                    e.printStackTrace();
-                }
-
-                return writer;
-            }
-        });
     }
 }
