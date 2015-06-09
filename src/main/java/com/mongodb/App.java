@@ -3,18 +3,13 @@ package com.mongodb;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import freemarker.template.Configuration;
-import freemarker.template.Template;
 import org.bson.Document;
-import spark.Request;
-import spark.Response;
-import spark.Route;
-import spark.Spark;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
 
 public class App {
     public static void main(String[] args) {
@@ -27,9 +22,18 @@ public class App {
         MongoDatabase database = client.getDatabase("students");
         MongoCollection<Document> collection = database.getCollection("grades");
 
-        List<Document> all = collection.find().into(new ArrayList<Document>());
-        for (Document cursor : all) {
-            System.out.println(cursor);
+//        myDoc = collection.find(exists("i")).sort(descending("i")).first();
+//        System.out.println(myDoc.toJson());
+
+        List<Document> all = collection.find(eq("type", "homework")).into(new ArrayList<Document>());
+        int prevStudent = -1;
+        for (Document document : all) {
+            if (prevStudent != document.getInteger("student_id")) {
+                prevStudent = document.getInteger("student_id");
+            } else {
+                List<Document> scores = collection.find(and(eq("student_id", document.getInteger("student_id")), eq("type", "homework"))).into(new ArrayList<Document>());
+            }
         }
+
     }
 }
