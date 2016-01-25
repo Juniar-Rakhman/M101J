@@ -24,7 +24,7 @@ public class Hello {
         MongoDatabase database = client.getDatabase("test");
         final MongoCollection<Document> collection = database.getCollection("hello");
 
-        collection.dropCollection();
+        collection.drop();
 
         collection.insertOne(new Document("name", "MongoDB"));
 
